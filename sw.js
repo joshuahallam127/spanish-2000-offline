@@ -1,4 +1,4 @@
-const CACHE = "es2000-v1";
+const CACHE = "es2000-v2";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.add("./")).then(() => self.skipWaiting()));
 });
