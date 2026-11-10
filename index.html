@@ -1276,6 +1276,16 @@ $("nextChunkBtn").onclick = () => startChunk(chunk + 1);
 $("redoBtn").onclick = () => ({ chunk: startChunk, hundred: startHundred, hundredWrong: startHundredWrong, mistakes: startMistakes })[mode](chunk);
 
 if (mergeInLater) mergeIn(mergeInLater);
+// A link pasted into a tab that already shows this page only changes the hash, without reloading
+addEventListener("hashchange", () => {
+  try {
+    const m = location.hash.match(/^#p=(.+)$/);
+    if (!m) return;
+    mergeIn(JSON.parse(decodeURIComponent(m[1])));
+    history.replaceState(null, "", location.pathname);
+    renderHome();
+  } catch (e) {}
+});
 $("copyBtn").onclick = async () => {
   const code = JSON.stringify({ done: [...doneSet].sort((a, b) => a - b), hundreds: hund });
   try { await navigator.clipboard.writeText(code); $("copyBtn").querySelector("small").textContent = "Copied"; }
