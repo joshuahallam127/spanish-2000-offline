@@ -837,6 +837,7 @@ function renderHome() {
       const cl = document.createElement("span"); cl.textContent = `${c * SIZE + 1}–${Math.min((c + 1) * SIZE, WORDS.length)}`;
       b.append(cl);
       if (doneSet.has(c)) { const n = timesDone(c), cs = document.createElement("small"); cs.textContent = `${n}×`; b.append(cs); }
+      b.dataset.c = c;
       b.onclick = () => startChunk(c);
       grid.appendChild(b);
     }
@@ -847,6 +848,7 @@ function renderHome() {
     const stat = document.createElement("small");
     stat.textContent = hund[h] ? `${hund[h].right} correct · ${hund[h].wrong.length} wrong` : "100 words";
     hb.append(label, stat);
+    hb.dataset.h = h;
     hb.onclick = () => hund[h] && hund[h].wrong.length ? chooseHundred(h) : startHundred(h);
     grid.appendChild(hb);
     groups.appendChild(grid);
@@ -859,6 +861,7 @@ function renderHome() {
       ms.textContent = ids.length ? `${ids.length} ${ids.length === 1 ? "word" : "words"}` : "No mistakes saved";
       mb.append(ml, ms);
       mb.disabled = !ids.length;
+      mb.dataset.block = block;
       mb.onclick = () => startMistakes(block);
       groups.appendChild(mb);
       const rd = READING.find(r => r.to === Math.min((block + 1) * BLOCK * HUNDRED, WORDS.length)); // under the Mistakes button where its range ends
@@ -1282,8 +1285,15 @@ function finish() {
   show("done");
 }
 
-$("backBtn").onclick = () => { clearTimeout(timer); renderHome(); };
-$("homeBtn").onclick = renderHome;
+// Back to the chunk list, scrolled to the button of the chunk just practised (not the top)
+function homeAtChunk() {
+  renderHome();
+  const sel = mode === "chunk" ? `[data-c="${chunk}"]` : mode === "hundred" || mode === "hundredWrong" ? `[data-h="${chunk}"]` : `[data-block="${chunk}"]`;
+  const el = $("groups").querySelector(sel);
+  if (el) el.scrollIntoView({ block: "center" });
+}
+$("backBtn").onclick = () => { clearTimeout(timer); homeAtChunk(); };
+$("homeBtn").onclick = homeAtChunk;
 $("nextChunkBtn").onclick = () => startChunk(chunk + 1);
 $("redoBtn").onclick = () => ({ chunk: startChunk, hundred: startHundred, hundredWrong: startHundredWrong, mistakes: startMistakes })[mode](chunk);
 
